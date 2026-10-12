@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+
+permissions:
+  contents: write
+
+# Um release por vez, na ordem dos pushes.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  # Cada merge na main vira uma versão nova: 0.1.<número da execução>.
+  APP_VERSION: 0.1.${{ github.run_number }}
+
+jobs:
+  test:
+    name: Testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            flag: --linux
+          - name: windows
+            os: windows-latest
+            flag: --win
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      # O fpm precisa do rpmbuild para gerar o .rpm.
+      - name: Instalar rpm (Linux)
+        if: matrix.name == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: npm ci
+
+      - name: Compilar
+        run: npx electron-builder ${{ matrix.flag }} --publish never -c.extraMetadata.version=${{ env.APP_VERSION }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          if-no-files-found: error
+          path: |
+            desktop/dist/*.deb
+            desktop/dist/*.rpm
+            desktop/dist/*.exe
+
+  release:
+    name: Publicar release
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Criar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${APP_VERSION}" artifacts/* \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
+            --title "Discotavo ${APP_VERSION}" \
+            --generate-notes

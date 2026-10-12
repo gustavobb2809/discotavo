@@ -64,6 +64,7 @@ jobs:
       - run: npm ci
 
       - name: Compilar
+        shell: bash # o PowerShell quebra o argumento -c.extraMetadata.version
         run: npx electron-builder ${{ matrix.flag }} --publish never -c.extraMetadata.version=${{ env.APP_VERSION }}
 
       - uses: actions/upload-artifact@v4

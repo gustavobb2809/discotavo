@@ -33,6 +33,30 @@ const CSP = [
 
 let win = null;
 
+// Atualização automática: baixa a versão nova em segundo plano e pergunta se reinicia. No Linux só
+// o AppImage se atualiza sozinho; deb/rpm seguem pelo instalador.
+function setupAutoUpdate() {
+  if (!app.isPackaged) return;
+  if (process.platform === 'linux' && !process.env.APPIMAGE) return;
+  const { autoUpdater } = require('electron-updater');
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.on('error', (err) => console.warn('Falha ao atualizar:', err.message));
+  autoUpdater.on('update-downloaded', async (info) => {
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'info',
+      message: `Discotavo ${info.version} pronto para instalar`,
+      detail: 'Reinicie para aplicar a atualização.',
+      buttons: ['Reiniciar agora', 'Depois'],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response === 0) autoUpdater.quitAndInstall();
+  });
+  const check = () => autoUpdater.checkForUpdates().catch(() => {});
+  check();
+  setInterval(check, 60 * 60 * 1000);
+}
+
 function registerUiProtocol() {
   protocol.handle('app', (request) => {
     const { pathname } = new URL(request.url);
@@ -130,6 +154,7 @@ if (!gotLock) {
     registerUiProtocol();
     setupPermissions();
     createWindow();
+    setupAutoUpdate();
     // Silenciar/ativar o microfone com a janela em segundo plano.
     const ok = globalShortcut.register(MUTE_SHORTCUT, () => {
       if (win) win.webContents.send('toggle-mute');

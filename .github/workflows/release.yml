@@ -74,7 +74,10 @@ jobs:
           path: |
             desktop/dist/*.deb
             desktop/dist/*.rpm
+            desktop/dist/*.AppImage
             desktop/dist/*.exe
+            desktop/dist/*.blockmap
+            desktop/dist/latest*.yml
 
   release:
     name: Publicar release

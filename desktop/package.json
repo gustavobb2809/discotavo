@@ -27,6 +27,7 @@
     ],
     "linux": {
       "target": [
+        "AppImage",
         "deb",
         "rpm"
       ],
@@ -39,11 +40,22 @@
         "nsis"
       ],
       "icon": "build/icon.png"
-    }
+    },
+    "artifactName": "Discotavo-${version}.${ext}",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "gustavobb2809",
+        "repo": "discotavo"
+      }
+    ]
   },
   "author": {
     "name": "Gustavo Barbosa",
     "email": "gustavob2809@gmail.com"
   },
-  "homepage": "https://github.com/gustavobb2809/discotavo"
+  "homepage": "https://github.com/gustavobb2809/discotavo",
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  }
 }

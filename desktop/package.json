@@ -1,0 +1,49 @@
+{
+  "name": "discotavo-desktop",
+  "version": "0.1.0",
+  "description": "Cliente desktop do Discotavo",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.discotavo.desktop",
+    "productName": "Discotavo",
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "../public",
+        "to": "public"
+      }
+    ],
+    "linux": {
+      "target": [
+        "deb",
+        "rpm"
+      ],
+      "category": "AudioVideo",
+      "icon": "build/icon.png",
+      "maintainer": "Gustavo Barbosa <gustavob2809@gmail.com>"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png"
+    }
+  },
+  "author": {
+    "name": "Gustavo Barbosa",
+    "email": "gustavob2809@gmail.com"
+  },
+  "homepage": "https://github.com/gustavobb2809/discotavo"
+}

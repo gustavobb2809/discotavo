@@ -50,10 +50,35 @@ function iceConfig() {
   return { iceServers };
 }
 
+// O app desktop carrega a UI de app://ui e é a única origem externa que aceitamos.
+const DESKTOP_ORIGIN = 'app://ui';
+
+function corsHeaders(req) {
+  return req.headers.origin === DESKTOP_ORIGIN
+    ? { 'Access-Control-Allow-Origin': DESKTOP_ORIGIN, Vary: 'Origin' }
+    : { Vary: 'Origin' };
+}
+
+// Navegadores mandam Origin: só aceita a própria página, ou o app desktop. Clientes sem Origin
+// (não-navegador) passam, como antes.
+function originAllowed(req) {
+  const origin = req.headers.origin;
+  if (!origin || origin === DESKTOP_ORIGIN) return true;
+  try {
+    return new URL(origin).host === req.headers.host;
+  } catch {
+    return false;
+  }
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/config.json') {
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      ...corsHeaders(req),
+    });
     res.end(JSON.stringify(iceConfig()));
     return;
   }
@@ -76,7 +101,12 @@ const server = http.createServer((req, res) => {
   });
 });
 
-const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
+const wss = new WebSocketServer({
+  server,
+  path: '/ws',
+  maxPayload: 64 * 1024,
+  verifyClient: ({ req }) => originAllowed(req),
+});
 
 // Proxies como o Cloudflare derrubam WebSockets ociosos; o ping mantém o tráfego
 // e o pong ausente revela conexões mortas.

@@ -134,8 +134,56 @@
 
   const nameInput = $('name');
   const codeInput = $('code');
+  const serverInput = $('server');
   nameInput.value = store.get('discotavo.name') || '';
   codeInput.value = decodeURIComponent(location.hash.slice(1));
+
+  // No app desktop a interface vem do próprio app, então o endereço do servidor é informado
+  // pelo usuário. No navegador é sempre a origem da página.
+  const desktop = window.discotavoDesktop || null;
+  let serverBase = desktop ? '' : location.origin; // no desktop só existe depois de enviar o formulário
+  if (desktop) {
+    $('server-field').hidden = false;
+    serverInput.value = store.get('discotavo.server') || '';
+    desktop.onToggleMute(toggleMute);
+  }
+
+  // Aceita o link completo da sala (https://host/#CODIGO) ou só o endereço do servidor.
+  function parseRoomLink(text) {
+    const raw = text.trim();
+    if (!raw) return null;
+    try {
+      const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`);
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+      return { origin: url.origin, code: decodeURIComponent(url.hash.slice(1)) };
+    } catch {
+      return null;
+    }
+  }
+
+  function applyPasted(text) {
+    const link = parseRoomLink(text);
+    if (!link || !link.code) return false;
+    if (desktop) {
+      serverInput.value = link.origin;
+    } else if (link.origin !== location.origin) {
+      // O navegador só fala com o servidor que serviu a página.
+      showJoinError('Esse link é de outro servidor. Abra-o direto no navegador ou no app desktop.');
+      return true;
+    }
+    codeInput.value = link.code;
+    return true;
+  }
+
+  // No campo do código só um link com esquema é tratado como link; o texto comum cola normalmente.
+  function onPaste(input, needsScheme) {
+    input.addEventListener('paste', (e) => {
+      const text = e.clipboardData ? e.clipboardData.getData('text') : '';
+      if ((!needsScheme || text.includes('://')) && applyPasted(text)) e.preventDefault();
+    });
+  }
+  onPaste(codeInput, true);
+  onPaste(serverInput, false);
 
   function showJoinError(text) {
     const el = $('join-error');
@@ -146,9 +194,18 @@
   $('join-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     showJoinError('');
+    if (desktop) {
+      const link = parseRoomLink(serverInput.value);
+      if (!link) {
+        showJoinError('Informe o endereço do servidor (o link da sala).');
+        return;
+      }
+      serverBase = link.origin;
+    }
     $('join-btn').disabled = true;
     try {
       await join(nameInput.value.trim(), codeInput.value.trim());
+      if (desktop) store.set('discotavo.server', serverBase); // só guarda um servidor que funcionou
     } catch (err) {
       cleanup();
       showJoinError(err.message || 'Não foi possível entrar na sala.');
@@ -165,7 +222,7 @@
     await state.audioCtx.resume();
 
     try {
-      const res = await fetch('/config.json', { cache: 'no-store' });
+      const res = await fetch(`${serverBase}/config.json`, { cache: 'no-store' });
       if (res.ok) state.iceConfig = await res.json();
     } catch { /* usa o STUN padrão */ }
 
@@ -247,8 +304,8 @@
   }
 
   function socketUrl() {
-    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${proto}//${location.host}/ws`;
+    const base = new URL(serverBase);
+    return `${base.protocol === 'https:' ? 'wss:' : 'ws:'}//${base.host}/ws`;
   }
 
   /* ---------- queda e retomada da conexão com o servidor ---------- */
@@ -1323,7 +1380,7 @@
   wakePlayer();
 
   $('copy-btn').addEventListener('click', async () => {
-    const link = `${location.origin}/#${state.code}`;
+    const link = `${serverBase}/#${state.code}`;
     const label = $('room-code');
     try {
       await navigator.clipboard.writeText(link);

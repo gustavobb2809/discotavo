@@ -79,3 +79,20 @@ npm test
 
 Cobrem a lógica da sala (código, limite de 8, entrada/saída, repasse de sinalização). A parte de áudio precisa ser testada à mão com dois navegadores.
 # discotavo
+
+## Cliente desktop
+
+Em `desktop/` há um app Electron que traz a interface embutida e só usa o servidor para a sinalização.
+
+```sh
+cd desktop
+npm install
+env -u ELECTRON_RUN_AS_NODE npm start   # o unset só é necessário em terminais do VS Code
+npm run dist                            # gera .deb e .rpm (Linux) ou o instalador .exe (Windows)
+```
+
+No campo **Servidor**, cole o link da sala que o terminal do servidor imprime (`https://algo.trycloudflare.com/#CODIGO`): o app separa o endereço e o código e lembra o servidor da próxima vez. `Ctrl+Shift+M` silencia/ativa o microfone mesmo com a janela em segundo plano.
+
+### Releases automáticas
+
+A cada push na `main` (exceto mudanças só em `.md`), o workflow [release.yml](.github/workflows/release.yml) compila o app e publica uma release `v0.1.<n>` no GitHub com `.deb`, `.rpm` e o instalador `.exe`. Para gerar localmente o `.rpm`/`.deb` no Fedora é preciso `sudo dnf install libxcrypt-compat`.

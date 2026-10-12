@@ -1,0 +1,12 @@
+[
+  { "id": "aplausos", "name": "Aplausos", "seq": [[200, 0.05, "square"], [260, 0.05, "square"], [220, 0.05, "square"], [300, 0.08, "square"], [240, 0.05, "square"], [310, 0.08, "square"]] },
+  { "id": "ding", "name": "Ding", "seq": [[1320, 0.6, "sine"]] },
+  { "id": "buzina", "name": "Buzina", "seq": [[440, 0.5, "sawtooth"], [440, 0.4, "sawtooth"]] },
+  { "id": "trombone", "name": "Trombone triste", "seq": [[311, 0.3, "sawtooth"], [293, 0.3, "sawtooth"], [277, 0.3, "sawtooth"], [233, 0.7, "sawtooth"]] },
+  { "id": "rimshot", "name": "Rimshot", "seq": [[150, 0.1, "square"], [120, 0.1, "square"], [900, 0.2, "square"]] },
+  { "id": "levelup", "name": "Level up", "seq": [[523, 0.12, "triangle"], [659, 0.12, "triangle"], [784, 0.12, "triangle"], [1047, 0.3, "triangle"]] },
+  { "id": "grito", "name": "Grito", "file": "grito.mp3", "mine": true },
+  { "id": "audio-1", "name": "Áudio 1", "file": "audio-1.mp3", "mine": true },
+  { "id": "audio-2", "name": "Áudio 2", "file": "audio-2.mp3", "mine": true },
+  { "id": "audio-3", "name": "Áudio 3", "file": "audio-3.mp3", "mine": true }
+]

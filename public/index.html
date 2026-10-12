@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discotavo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section id="join-screen" class="join">
+  <section class="hero">
+    <div class="brand">
+      <div class="logo"><img src="logo.png" alt=""></div>
+      <span>Discotavo</span>
+    </div>
+    <div class="hero-body">
+      <div class="stack" aria-hidden="true">
+        <i style="background:#eb459e">M</i><i style="background:#3ba55d">P</i><i style="background:#9b59b6">L</i><i style="background:#e67e22">C</i><i class="more">+3</i>
+      </div>
+      <h2>Fale com a galera.</h2>
+      <p>Voz em tempo real e compartilhamento de tela, direto no navegador. Sem conta, sem instalar nada.</p>
+      <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <p class="hero-foot">Até 8 pessoas por sala</p>
+  </section>
+
+  <section class="join-side">
+    <form id="join-form" class="join-card" autocomplete="off">
+      <div class="join-head">
+        <h1>Entrar na sala</h1>
+        <p>Digite seu nome e o código que você recebeu.</p>
+      </div>
+      <div class="field">
+        <label for="name">Seu nome</label>
+        <input id="name" type="text" maxlength="24" required>
+      </div>
+      <div class="field">
+        <label for="code">Código da sala</label>
+        <input id="code" type="text" maxlength="9" class="code-input" required>
+      </div>
+      <p id="join-error" class="error" role="alert" hidden></p>
+      <button id="join-btn" type="submit" class="primary">
+        <span>Entrar na sala</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="note">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+        <p>O navegador vai pedir acesso ao microfone. Sem ele, você só ouve.</p>
+      </div>
+    </form>
+  </section>
+</section>
+
+<section id="room-screen" class="room" hidden>
+  <aside class="sidebar">
+    <div class="side-head">
+      <div class="side-title">
+        <div class="logo small"><img src="logo.png" alt=""></div>
+        <h1>Discotavo</h1>
+      </div>
+      <button id="copy-btn" type="button" class="code-chip" aria-label="Copiar link da sala">
+        <span id="room-code"></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+      </button>
+    </div>
+    <div class="side-label">Na sala — <span id="count-side"></span></div>
+    <ul id="people-list" class="people"></ul>
+    <div class="me-panel">
+      <div id="me-avatar" class="avatar me-avatar"></div>
+      <div class="me-info">
+        <div id="me-name" class="me-name"></div>
+        <div id="me-status" class="me-status"></div>
+      </div>
+      <button id="mute-mini" type="button" class="icon-btn"></button>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-head">
+      <div class="status">
+        <span id="status-dot" class="dot"></span>
+        <strong id="status-text">Conectado à sala</strong>
+      </div>
+      <span class="count-pill"><span id="count-head"></span> pessoas</span>
+    </div>
+    <p id="room-warning" class="warning" role="status" hidden></p>
+
+    <div id="screen-view" class="screen-view" hidden>
+      <div id="player" class="player">
+        <div id="player-stage" class="player-stage">
+          <video id="screen-video" autoplay playsinline muted></video>
+          <p id="screen-note" class="screen-note" hidden></p>
+        </div>
+
+        <div class="player-top">
+          <div class="player-left">
+            <div class="who">
+              <div id="who-avatar" class="avatar"></div>
+              <b id="who-name"></b>
+              <span>compartilhando a tela</span>
+            </div>
+            <div class="live"><i></i>AO VIVO</div>
+          </div>
+          <div class="player-right">
+            <div id="quality-chip" class="glass-chip" hidden>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#23a55a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20v-4"/><path d="M12 20V10"/><path d="M19 20V4"/></svg>
+              <span id="quality-text"></span>
+            </div>
+            <div class="glass-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span id="viewers-text"></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="pbar" class="pbar" hidden>
+          <div class="pinfo"><b id="share-time">0:00</b><span>ao vivo</span></div>
+          <div class="pctl">
+            <button id="fit-btn" type="button" class="pbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>
+              <span id="fit-text">Preencher</span>
+            </button>
+            <button id="pip-btn" type="button" class="pbtn icon" aria-label="Janela flutuante" title="Janela flutuante" hidden>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="5" rx="1"/></svg>
+            </button>
+            <button id="theater-btn" type="button" class="pbtn icon" aria-label="Modo teatro" title="Modo teatro">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+            </button>
+            <button id="fs-btn" type="button" class="pbtn icon" aria-label="Tela cheia" title="Tela cheia" hidden>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tiles" class="tiles"></div>
+
+    <div class="dock-wrap">
+      <div class="dock">
+        <button id="mute-btn" type="button" class="dock-btn"></button>
+        <button id="share-btn" type="button" class="dock-btn"></button>
+        <button id="sound-btn" type="button" class="dock-btn" aria-label="Soundboard" title="Soundboard" aria-haspopup="dialog">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>
+        </button>
+        <button id="audio-btn" type="button" class="dock-btn" aria-label="Configurações de áudio" title="Configurações de áudio">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></svg>
+        </button>
+        <span class="sep"></span>
+        <button id="leave-btn" type="button" class="leave">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
+  </main>
+</section>
+
+<div id="welcome" class="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title" hidden>
+  <div class="welcome-card">
+    <div class="welcome-avatar">
+      <img src="logo.png" alt="Rosto espiando por trás de uma cortina, dando boas-vindas">
+      <span class="online"><i></i>ONLINE</span>
+    </div>
+    <div class="welcome-text">
+      <span id="welcome-hello" class="eyebrow"></span>
+      <h1 id="welcome-title">Bem-vindo ao servidor dos bots e jogadores sem skills</h1>
+      <p id="welcome-sub"></p>
+    </div>
+    <div class="welcome-mic">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+      <span id="welcome-mic"></span>
+    </div>
+    <button id="welcome-close" type="button" class="primary">
+      <span>Entrar na conversa</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="audio-panel" class="settings" role="dialog" aria-modal="true" aria-labelledby="audio-title" hidden>
+  <div class="settings-card">
+    <header class="settings-head">
+      <h1 id="audio-title">Áudio</h1>
+      <button id="audio-close" type="button" class="icon-btn" aria-label="Fechar" title="Fechar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <p class="settings-note">Estes ajustes são só seus: ficam salvos neste navegador e ninguém mais percebe a diferença, a não ser pela qualidade da sua voz.</p>
+    <p id="audio-status" class="warning" role="status" hidden></p>
+
+    <section class="settings-sec" aria-labelledby="mixer-title">
+      <h2 id="mixer-title">Participantes</h2>
+      <p id="mixer-empty" class="settings-hint">Ninguém mais na sala ainda.</p>
+      <ul id="mixer" class="mixer"></ul>
+      <div id="mixer-actions" class="settings-actions">
+        <button id="mixer-mute-all" type="button" class="chip-btn" aria-pressed="false">Silenciar todos</button>
+        <button id="mixer-reset" type="button" class="chip-btn">Restaurar volumes</button>
+      </div>
+      <p class="settings-hint">Acima de 100% o som de quem fala baixo fica mais alto, mas pode distorcer.</p>
+    </section>
+
+    <fieldset id="mic-section" class="settings-sec">
+      <legend><span>Meu microfone</span> <b id="quality-name" class="quality-name"></b></legend>
+      <p id="mic-missing" class="settings-hint" hidden>Sem acesso ao microfone: não há o que ajustar aqui.</p>
+
+      <div id="presets" class="presets" role="group" aria-label="Predefinições de qualidade"></div>
+
+      <div class="slider-field">
+        <div class="mixer-top"><label for="bitrate">Taxa de bits (bitrate)</label><output id="bitrate-out" for="bitrate" class="mixer-val"></output></div>
+        <input id="bitrate" type="range" step="8">
+        <p id="upload-note" class="settings-hint"></p>
+      </div>
+
+      <div class="slider-field">
+        <div class="mixer-top"><label for="mic-vol">Volume do microfone</label><output id="mic-vol-out" for="mic-vol" class="mixer-val"></output></div>
+        <input id="mic-vol" type="range" min="0" step="5">
+        <div class="level" aria-hidden="true"><i id="mic-level"></i></div>
+      </div>
+
+      <label class="switch-row" for="opt-ns">
+        <span><b>Supressão de ruído</b><small>Reduz teclado, ventilador e ruído de fundo.</small></span>
+        <input id="opt-ns" type="checkbox" role="switch">
+      </label>
+      <label class="switch-row" for="opt-echo">
+        <span><b>Cancelamento de eco</b><small>Evita que a sua voz volte pelos alto-falantes.</small></span>
+        <input id="opt-echo" type="checkbox" role="switch">
+      </label>
+      <label class="switch-row" for="opt-agc">
+        <span><b>Ganho automático</b><small>Mantém o volume da sua voz constante.</small></span>
+        <input id="opt-agc" type="checkbox" role="switch">
+      </label>
+    </section>
+  </div>
+</div>
+
+<div id="sound-panel" class="settings" role="dialog" aria-modal="true" aria-labelledby="sound-title" hidden>
+  <div class="settings-card">
+    <header class="settings-head">
+      <h1 id="sound-title">Soundboard</h1>
+      <button id="sound-close" type="button" class="icon-btn" aria-label="Fechar" title="Fechar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <p class="settings-note">Clique para tocar o som para toda a sala. Quem não quiser ouvir pode silenciar os sons só para si.</p>
+
+    <section class="settings-sec" aria-labelledby="sound-std-title">
+      <h2 id="sound-std-title">Padrão</h2>
+      <div id="sound-std" class="sound-grid"></div>
+    </section>
+    <section class="settings-sec" aria-labelledby="sound-mine-title">
+      <h2 id="sound-mine-title">Meus sons</h2>
+      <div id="sound-mine" class="sound-grid"></div>
+    </section>
+    <section class="settings-sec" aria-label="Volume dos sons">
+      <div class="slider-field">
+        <div class="mixer-top"><label for="sound-vol">Volume dos sons</label><output id="sound-vol-out" for="sound-vol" class="mixer-val"></output></div>
+        <input id="sound-vol" type="range" min="0" max="100" step="5">
+      </div>
+      <div class="settings-actions">
+        <button id="sound-mute" type="button" class="chip-btn" aria-pressed="false">Silenciar sons</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<p id="sound-toast" class="sound-toast" role="status" hidden></p>
+
+<div id="audio-sink" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
